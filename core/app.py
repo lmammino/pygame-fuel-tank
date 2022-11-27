@@ -1,8 +1,8 @@
 import inspect
 
-
 import pygame
 
+from . import board, keys
 from .commands import Commands
 
 
@@ -16,12 +16,13 @@ class App:
         bg_color=(0, 0, 0),
     ):
         self._screen_size = screen_size
-        self._board_size = board_size
+        self._board_size = board.size = board_size
         self._fps = fps
         self._bg_color = bg_color
         self._title = title
         self._setup = []
         self._system = []
+        self._deferred_writes = []
 
     def setup(self, original_fx):
         def fx():
@@ -36,15 +37,19 @@ class App:
 
     def system(self, original_fx):
         kv = {
-                k: v.annotation()
-                for k, v in inspect.signature(original_fx).parameters.items()
-            }
-            
-        def fx():            
+            k: v.annotation()
+            for k, v in inspect.signature(original_fx).parameters.items()
+        }
+
+        def fx():
             return original_fx(**kv)
 
         self._system.append(fx)
         return fx
+
+
+    def deferred_write(self, text, x):
+        self._deferred_writes.append(lambda: self.write(text, x ))
 
     def write(self, text, x, cache={}):
         font = cache.setdefault("font", pygame.font.SysFont("Verdana", 24))
@@ -89,39 +94,32 @@ class App:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                elif event.type == pygame.KEYUP:
+                    keys.add_up(event.key)
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         running = False
-                    # if event.key == pygame.K_r and state.get("game") == "over":
-                    #     init_game(state)
 
             if running:
                 # recomputes
                 for fx in self._system:
                     fx()
 
-                # for group in state["sprites"].values():
-                #     group.update(state, self._board_size)
+                keys.update()
 
                 # draws
                 board.fill(self._bg_color)
                 for entity in commands.get_all_entities():
                     for component in entity:
-                        if hasattr(component, 'draw'):
+                        if hasattr(component, "draw"):
                             component.draw(board)
-                #     # group.clear(board, background)
-                #     group.draw(board)
 
             self.screen.blit(board, (0, 0))
             # fps
             self.write(f"{clock.get_fps():.02f} fps", 0)
-            # # score
-            # self.write(f"SCORE: {state['score']}", 1)
-            # # fuel
-            # self.write(f"FUEL: {state['fuel']:.02f}", 2)
-
-            # if state.get("game") == "over":
-            #     self.gameover()
+            # deferred writes
+            while self._deferred_writes:
+                self._deferred_writes.pop()()
 
             pygame.display.flip()
 

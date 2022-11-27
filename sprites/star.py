@@ -24,6 +24,8 @@ class Star(pygame.sprite.Sprite):
         self.rect = Star.images[0].get_rect()
         self.rect.center = (x, y)
 
-    def update(self, state, screen_size=(1024, 768)):
+    def draw(self, screen):
         self.image = Star.images[(self.n // self.speed) % len(Star.images)]
         self.n += 1
+        self.n %= 65535
+        screen.blit(self.image, self.rect)
