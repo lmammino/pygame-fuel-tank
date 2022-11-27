@@ -17,28 +17,35 @@ class Ship(pygame.sprite.Sprite):
     acceleration = 100
     rotation_speed = 100
     fuel_efficency = 20
-    v = (0, 0)
     center = (0, 0)
 
-    def __init__(self, x, y, t0=None):
+    def __init__(self, x, y):
         super().__init__()
-        if t0 is None:
-            t0 = time.monotonic()
-        self.t0 = t0
-        self.n = 0
 
-        image_map = pygame.image.load(Ship.image_name)
-        w = image_map.get_width() // self.sprite_aspect[0]
-        h = image_map.get_height() // self.sprite_aspect[1]
-        for i in range(self.sprite_aspect[0]):
-            for j in range(self.sprite_aspect[1]):
-                self.images.append(image_map.subsurface((w * i, h * j, w, h)))
-        self.image = self.images[0]
-
-        self.rect = self.images[0].get_rect()
+        if not Ship.images:
+            image_map = pygame.image.load(Ship.image_name)
+            w = image_map.get_width() // self.sprite_aspect[0]
+            h = image_map.get_height() // self.sprite_aspect[1]
+            for i in range(self.sprite_aspect[0]):
+                for j in range(self.sprite_aspect[1]):
+                    Ship.images.append(image_map.subsurface((w * i, h * j, w, h)))
+        
+        self.image = Ship.images[0]
+        self.rect = self.image.get_rect()
         self.center = self.rect.center = x, y
-        self._tpre = time.monotonic()
-        self.mask = pygame.mask.from_surface(self.images[0])
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+
+    def set_rotation(self, rotation):
+        self.rotation = rotation
+        self.image = pygame.transform.rotate(
+            self.images[self.image_idx], rotation
+        )
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.center = self.center
 
     def update(self, state, screen_size=(1024, 768)):
         delta = time.monotonic() - self._tpre
