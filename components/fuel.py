@@ -6,7 +6,7 @@ from __main__ import app
 import sprites
 from core import Query, Entity, Commands
 
-from .ship import Engine
+from . import GameState, Engine
 
 
 @dataclass
@@ -15,10 +15,11 @@ class Fuel:
 
 
 @app.system
-def rotate_ship(
+def fuel_collision(
     commands: Commands,
     fuel_query: Query(sprites.Fuel, Fuel, Entity),
     ship_query: Query(sprites.Ship, Engine),
+    game_state: Query(GameState),
 ):
     for fuel_sprite, fuel, fuel_entity in fuel_query:
         for ship_sprite, engine in ship_query:
@@ -27,10 +28,12 @@ def rotate_ship(
                 if engine.fuel > 1000:  # TODO magic number
                     engine.fuel = 1000
                 commands.kill(fuel_entity)
+                game_state[0].fuel_left -= 1
+
 
 @app.system
 def show_fuel(
     query: Query(Engine),
 ):
-    fuel = query[0].fuel
-    app.deferred_write(f"FUEL: {fuel:.02f}", 2)
+    for (engine,) in query:
+        app.deferred_write(f"FUEL: {engine.fuel:.02f}", 2)

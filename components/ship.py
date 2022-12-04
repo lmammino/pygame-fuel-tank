@@ -75,6 +75,6 @@ def engine_on(
 def animation(
     query: Query(Ship, Engine),
 ):
-    ship_sprite, engine = query.first()
-    if engine.is_on:
-        ship_sprite.animate(True)
+    for ship_sprite, engine in query:
+        if engine.is_on:
+            ship_sprite.animate(True)

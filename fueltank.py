@@ -26,23 +26,35 @@ def setup(commands: Commands):
 
     for _ in range(STAR_COUNT):
         commands.spawn().insert(
-            sprites.Star(randint(0,BOARD_SIZE[0]-1), randint(0,BOARD_SIZE[1]-1))
+            sprites.Star(randint(0, BOARD_SIZE[0] - 1), randint(0, BOARD_SIZE[1] - 1))
         )
 
     for _ in range(FUEL_COUNT):
         commands.spawn().insert(
-            sprites.Fuel(randint(0,BOARD_SIZE[0]-1), randint(0,BOARD_SIZE[1]-1)),
-            Velocity(randint(-10,10), randint(-10,10)),
-            Fuel(randint(1,2)),
+            sprites.Fuel(randint(0, BOARD_SIZE[0] - 1), randint(0, BOARD_SIZE[1] - 1)),
+            Velocity(randint(-10, 10), randint(-10, 10)),
+            Fuel(randint(10, 20)),
         )
 
+    for _ in range(ROCKS_COUNT):
+        commands.spawn().insert(
+            sprites.Rock(
+                randint(0, BOARD_SIZE[0] - 1),
+                randint(0, BOARD_SIZE[1] - 1),
+                scale=randint(1, 2),
+            ),
+            Velocity(randint(-10, 10), randint(-10, 10)),
+            Spin(randint(-10, 10)),
+        )
+
+    commands.spawn().insert(GameState(FUEL_COUNT, Scene.PLAYING))
 
     # spawn the spaceship
     commands.spawn().insert(
         Starship(100),
         Velocity(0, 0),
         Engine(100, 100, 10, False),
-        sprites.Ship(BOARD_SIZE[0] // 2, BOARD_SIZE[1] // 2),        
+        sprites.Ship(BOARD_SIZE[0] // 2, BOARD_SIZE[1] // 2),
     )
 
 

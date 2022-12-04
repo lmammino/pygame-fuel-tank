@@ -11,3 +11,6 @@ class Time:
         ret = now - self._last
         self._last = now
         return ret
+
+    def elapsed_seconds(self):
+        return time.monotonic() - self._t0

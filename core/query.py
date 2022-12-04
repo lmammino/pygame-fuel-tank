@@ -16,7 +16,9 @@ class Query:
                 y = []
                 for s in self.search_for:
                     for component in entity:
-                        if isinstance(component, s):  # TODO optimize filter with maps of entities and set intersections
+                        if isinstance(
+                            component, s
+                        ):  # TODO optimize filter with maps of entities and set intersections
                             y.append(component)
                 if len(y) == len(self.search_for):
                     yield y
@@ -27,6 +29,9 @@ class Query:
         for components in self:
             return components[n]
         raise IndexError()
+
+    def __len__(self):
+        return len(list(self.__iter__()))
 
     def first(self):
         for components in self:

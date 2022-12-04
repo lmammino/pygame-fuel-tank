@@ -2,9 +2,6 @@ from math import pi, cos, sin
 import pygame
 import time
 
-from .explosion import Explosion
-
-
 class Ship(pygame.sprite.Sprite):  # TODO have my own sprite class
     images = []
     image = None

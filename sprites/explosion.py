@@ -1,12 +1,14 @@
 import pygame
 
+
 class Explosion(pygame.sprite.Sprite):
     image_map = None
     images = None
     image = None
     image_name = "assets/explosion.png"
     aspect = (6, 1)
-    speed = 8
+    animation_fps = 6
+    first_loop_done = False
 
     def __init__(self, x, y):
         super().__init__()
@@ -20,14 +22,18 @@ class Explosion(pygame.sprite.Sprite):
                     Explosion.images.append(
                         Explosion.image_map.subsurface((w * i, h * j, w, h))
                     )
-        self.n = 0
-        self.image = Explosion.images[self.n]
-        self.rect = Explosion.images[0].get_rect()
+        self.image_idx = 0
+        self.image = Explosion.images[self.image_idx]
+        self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self._t0 = 0
 
-    def update(self, state, screen_size=(1024, 768)):
-        self.image = Explosion.images[self.n // self.speed]
-        self.n += 1
-        if self.n // self.speed >= len(Explosion.images):
-            self.kill()
+    def push_time(self, delta_seconds):
+        self._t0 += delta_seconds
+        self.image_idx = int(self._t0 * self.animation_fps) % len(Explosion.images)
+        self.image = Explosion.images[self.image_idx]
+        if int(self._t0 * self.animation_fps) >= len(Explosion.images):
+            self.first_loop_done = True
 
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
