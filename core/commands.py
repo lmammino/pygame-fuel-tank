@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-
+import uuid
 
 class Entity:
     def __init__(self):
         self._components = []
+        self.id = uuid.uuid4()
 
     def insert(self, *components):
         self._components.extend(components)

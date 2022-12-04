@@ -1,13 +1,13 @@
 from dataclasses import dataclass
+from math import atan2, sin, cos, pi
 
 import pygame
 from __main__ import app
 
-
 import sprites
-from core import Query, Time, Commands, Entity
+from core import Commands, Entity, Query, Time
 
-from . import GameState, Scene
+from . import GameState, Scene, Velocity
 
 
 @dataclass
@@ -29,7 +29,7 @@ def rotation(
 
 
 @app.system
-def asteroid_collision(
+def asteroid_ship_collision(
     commands: Commands,
     rock_query: Query(sprites.Rock),
     ship_query: Query(sprites.Ship, Entity),
@@ -55,3 +55,33 @@ def explosion_animation(
         if sprite.first_loop_done:
             commands.kill(entity)
             sprite.kill()
+
+
+@app.system
+def asteroids_collision(
+    time: Time, rock_query: Query(sprites.Rock, Velocity, Entity), collisions_cache: dict
+):
+    delta = time.delta_seconds()
+    for k in collisions_cache:
+        collisions_cache[k] -= delta
+    rocks = list(rock_query)
+    for i, (rock1, v1, entity1) in enumerate(rocks):
+        for rock2, v2, entity2 in rocks[i + 1 :]:
+            if collisions_cache.get((entity1.id, entity2.id), 0) > 0:
+                continue
+            if pygame.sprite.collide_mask(rock1, rock2):
+                collisions_cache[(entity1.id, entity2.id)] = 1                
+                teta = atan2(
+                    rock1.center[1] - rock2.center[1], rock1.center[0] - rock2.center[0]
+                )
+                # TODO Optimize, precomputing math
+                # TODO take the spin in account
+                vel1 = (v1.vx**2 + v1.vy**2) ** 0.5
+                teta1 = atan2(v1.vy, v1.vx)
+                vel2 = (v2.vx**2 + v2.vy**2) ** 0.5
+                teta2 = atan2(v2.vy, v2.vx)
+
+                v1.vx = vel1 * cos(pi + 2 * teta - teta1)
+                v1.vy = vel1 * sin(pi + 2 * teta - teta1)
+                v2.vx = vel2 * cos(pi + 2 * teta - teta2)
+                v2.vy = vel2 * sin(pi + 2 * teta - teta2)

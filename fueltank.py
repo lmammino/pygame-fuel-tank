@@ -36,13 +36,19 @@ def setup(commands: Commands):
             Fuel(randint(10, 20)),
         )
 
+    rocks = []
     for _ in range(ROCKS_COUNT):
+        rock = sprites.Rock(
+            randint(0, BOARD_SIZE[0] - 1),
+            randint(0, BOARD_SIZE[1] - 1),
+            scale=randint(1, 2),
+        )
+        for rock2 in rocks:
+            if pygame.sprite.collide_mask(rock, rock2):
+                continue
+        rocks.append(rock)
         commands.spawn().insert(
-            sprites.Rock(
-                randint(0, BOARD_SIZE[0] - 1),
-                randint(0, BOARD_SIZE[1] - 1),
-                scale=randint(1, 2),
-            ),
+            rock,
             Velocity(randint(-10, 10), randint(-10, 10)),
             Spin(randint(-10, 10)),
         )
