@@ -54,5 +54,16 @@ def show_still_to_collect(
 @app.system
 def time_passed(
     time: Time,
+    query: Query(GameState),
 ):
+    if time.running() and query[0].scene == Scene.GAMEOVER:
+        time.stop()
     app.deferred_write(f"TIME: {time.elapsed_seconds():0.1f}", 1)
+
+
+@app.system
+def game_over(
+    query: Query(GameState),
+):
+    if query[0].scene == Scene.GAMEOVER:
+        app.deferred_gameover()

@@ -51,6 +51,10 @@ class App:
     def deferred_write(self, text, x):
         self._deferred_writes.append(lambda: self.write(text, x ))
 
+    def deferred_gameover(self, text="GAME OVER"):
+        self._deferred_writes.append(lambda: self.gameover(text))
+
+
     def write(self, text, x, cache={}):
         font = cache.setdefault("font", pygame.font.SysFont("Verdana", 24))
 
