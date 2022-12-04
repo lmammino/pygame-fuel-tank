@@ -53,7 +53,7 @@ def setup(commands: Commands):
     commands.spawn().insert(
         Starship(100),
         Velocity(0, 0),
-        Engine(100, 100, 10, False),
+        Engine(100, 100, 100, 10, False),
         sprites.Ship(BOARD_SIZE[0] // 2, BOARD_SIZE[1] // 2),
     )
 

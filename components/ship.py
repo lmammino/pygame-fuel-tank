@@ -18,6 +18,7 @@ class Starship:
 @dataclass
 class Engine:
     fuel: float
+    max_fuel: float
     thrust: float
     fuel_efficency: float
     is_on: bool
@@ -53,22 +54,22 @@ def engine_on(
 ):
     delta = time.delta_seconds()
     if key_pressed[pygame.K_UP]:
-        vel, ship_sprite, engine = query.first()
-        if engine.fuel > 0:
-            teta = ship_sprite.rotation * pi / 180
-            vel.vx -= sin(teta) * delta * engine.thrust
-            vel.vy -= cos(teta) * delta * engine.thrust
-            engine.is_on = True
-            engine.fuel -= delta * engine.thrust / engine.fuel_efficency
-            if engine.fuel < 0:
-                engine.fuel = 0
-        else:
+        for vel, ship_sprite, engine in query:
+            if engine.fuel > 0:
+                teta = ship_sprite.rotation * pi / 180
+                vel.vx -= sin(teta) * delta * engine.thrust
+                vel.vy -= cos(teta) * delta * engine.thrust
+                engine.is_on = True
+                engine.fuel -= delta * engine.thrust / engine.fuel_efficency
+                if engine.fuel < 0:
+                    engine.fuel = 0
+            else:
+                engine.is_on = False
+                ship_sprite.animate(False)
+    elif key_up[pygame.K_UP]:
+        for _, ship_sprite, engine in query:
             engine.is_on = False
             ship_sprite.animate(False)
-    elif key_up[pygame.K_UP]:
-        _, ship_sprite, engine = query.first()
-        engine.is_on = False
-        ship_sprite.animate(False)
 
 
 @app.system

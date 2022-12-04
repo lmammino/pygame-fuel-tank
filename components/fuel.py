@@ -25,8 +25,8 @@ def fuel_collision(
         for ship_sprite, engine in ship_query:
             if pygame.sprite.collide_mask(ship_sprite, fuel_sprite):
                 engine.fuel += fuel.capacity
-                if engine.fuel > 1000:  # TODO magic number
-                    engine.fuel = 1000
+                if engine.fuel > engine.max_fuel:
+                    engine.fuel = engine.max_fuel
                 commands.kill(fuel_entity)
                 game_state[0].fuel_left -= 1
 
